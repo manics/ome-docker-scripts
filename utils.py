@@ -92,6 +92,25 @@ def run_image(image, registered_name, command, volumes):
     cli.start(c)
 
 
+def exec_registered_name(name, command, interactive):
+    namemap = get_name_map()
+    if name in namemap:
+        if len(namemap[name]) > 1:
+            raise Exception(
+                'Too many matching containers found for name: %s %s' % (
+                    name, namemap[name]))
+        c = namemap[name][0]
+        log.info('Exec container: %s %s', name, c['Id'])
+        e = cli.exec_create(c, command, tty=interactive)
+        response = cli.exec_start(e, tty=interactive, stream=True)
+        for chunk in response:
+            sys.stdout.write(chunk)
+            sys.stdout.flush()
+        return cli.exec_inspect(e)['ExitCode']
+    else:
+        raise Exception('No matching containers found for name: %s' % name)
+
+
 def cmdstop(opts):
     stop_registered_name(opts.name, opts.rm)
 
@@ -104,6 +123,10 @@ def cmdlist(opts):
 
 def cmdrun(opts):
     run_image(opts.image, opts.name, opts.command, opts.volume)
+
+
+def cmdexec(opts):
+    return exec_registered_name(opts.name, opts.command, opts.interactive)
 
 
 def parse_args():
@@ -127,13 +150,23 @@ def parse_args():
         help='Volume mount (host:guest[:ro]), can be repeated')
     p_run.set_defaults(func=cmdrun)
 
+    p_exec = subp.add_parser('exec')
+    p_exec.add_argument(
+        '-i', '--interactive', action='store_true', help='Interactive TTY')
+    p_exec.add_argument('name', help='Registered container name')
+    p_exec.add_argument(
+        'command', nargs=argparse.REMAINDER, help='Command string')
+    p_exec.set_defaults(func=cmdexec)
+
     opts = parser.parse_args()
     return opts
 
 
 def main():
     opts = parse_args()
-    opts.func(opts)
+    r = opts.func(opts)
+    if r:
+        sys.exit(r)
 
 
 if __name__ == '__main__':
