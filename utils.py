@@ -51,11 +51,9 @@ def get_name_map():
 
 def stop_registered_name(name, rm=False, timeout=10):
     namemap = get_name_map()
-    print namemap
-    log.error(namemap)
     if name in namemap:
         for c in namemap[name]:
-            log.info('Stopping container: %s', name)
+            log.info('Stopping container: %s %s', name, c['Id'])
             cli.stop(c, timeout=timeout)
             if rm:
                 log.info('Removing container: %s', name)
@@ -95,7 +93,6 @@ def run_image(image, registered_name, command, volumes):
 
 
 def cmdstop(opts):
-    print 'cmdstop'
     stop_registered_name(opts.name, opts.rm)
 
 
