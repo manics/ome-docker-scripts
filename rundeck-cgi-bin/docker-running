@@ -16,6 +16,8 @@ if not pat:
 if pat[-1] != '$':
     pat += '$'
 
+getintname = ps.getvalue('getintname')
+
 ans = dns.resolver.Resolver().query(q, rdtype='SRV').rrset
 
 nvs = []
@@ -24,6 +26,8 @@ for a in ans:
     info, extname = parts[:2]
     intname = info.split(':')[1]
     if re.match(pat, extname):
+        if not getintname:
+            intname = extname
         nvs.append('{ "name": "%s", "value": "%s" }' % (extname, intname))
 
 print ('Content-type: application/json\n')
