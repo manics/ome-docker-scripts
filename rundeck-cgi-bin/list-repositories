@@ -15,8 +15,7 @@ root = '/cow'
 repos = [d for d in os.listdir(root) if (
     os.path.isdir(os.path.join(root, d)) and re.match(pat, d))]
 
-nvs = ['{ "name": "%s", "value": "%s" }' % (d, os.path.join(root, d))
-       for d in repos]
+nvs = ['{ "name": "%s", "value": "%s" }' % (d, d) for d in repos]
 
 print ('Content-type: application/json\n')
 print ('[%s]\n' % ','.join(nvs))
