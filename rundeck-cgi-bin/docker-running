@@ -23,7 +23,10 @@ ans = dns.resolver.Resolver().query(q, rdtype='SRV').rrset
 nvs = []
 for a in ans:
     parts = a.target.labels
-    info, extname = parts[:2]
+    try:
+        info, extname = parts[:2]
+    except:
+        continue
     intname = info.split(':')[1]
     if re.match(pat, extname):
         if not getintname:
