@@ -29,11 +29,11 @@ def get_registered_name(cont):
     Gets the name used by registrator
     """
     cinfo = cli.inspect_container(cont)
-    env = dict(kv.split('=', 1) for kv in cinfo['Config']['Env'])
     try:
+        env = dict(kv.split('=', 1) for kv in cinfo['Config']['Env'])
         return env['SERVICE_NAME']
-    except KeyError:
-        m = re.match('([\w-]+/)?([\w-]+)(:[\w-]+)?$', cont['Image'])
+    except (TypeError, KeyError):
+        m = re.match('([\w\./-]*/)?([\w\.-]+)(:[\w\.-]+)?$', cont['Image'])
         return m.group(2)
 
 
