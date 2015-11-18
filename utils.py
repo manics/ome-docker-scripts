@@ -32,7 +32,7 @@ def get_registered_name(cont):
     try:
         env = dict(kv.split('=', 1) for kv in cinfo['Config']['Env'])
         return env['SERVICE_NAME']
-    except (TypeError, KeyError):
+    except (TypeError, KeyError, ValueError):
         m = re.match('([\w\./-]*/)?([\w\.-]+)(:[\w\.-]+)?$', cont['Image'])
         return m.group(2)
 
